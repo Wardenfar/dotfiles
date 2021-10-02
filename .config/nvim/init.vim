@@ -307,25 +307,32 @@ nnoremap ; :
 " Ctrl-j is a little awkward unfortunately:
 " https://github.com/neovim/neovim/issues/5916
 " So we also map Ctrl+k
-nnoremap <C-j> <Esc>
-inoremap <C-j> <Esc>
-vnoremap <C-j> <Esc>
-snoremap <C-j> <Esc>
-xnoremap <C-j> <Esc>
-cnoremap <C-j> <C-c>
-onoremap <C-j> <Esc>
-lnoremap <C-j> <Esc>
-tnoremap <C-j> <Esc>
 
-nnoremap <C-k> <Esc>
-inoremap <C-k> <Esc>
-vnoremap <C-k> <Esc>
-snoremap <C-k> <Esc>
-xnoremap <C-k> <Esc>
-cnoremap <C-k> <C-c>
-onoremap <C-k> <Esc>
-lnoremap <C-k> <Esc>
-tnoremap <C-k> <Esc>
+"nnoremap <C-j> <Esc>
+"inoremap <C-j> <Esc>
+"vnoremap <C-j> <Esc>
+"snoremap <C-j> <Esc>
+"xnoremap <C-j> <Esc>
+"cnoremap <C-j> <C-c>
+"onoremap <C-j> <Esc>
+"lnoremap <C-j> <Esc>
+"tnoremap <C-j> <Esc>
+
+"nnoremap <C-k> <Esc>
+"inoremap <C-k> <Esc>
+"vnoremap <C-k> <Esc>
+"snoremap <C-k> <Esc>
+"xnoremap <C-k> <Esc>
+"cnoremap <C-k> <C-c>
+"onoremap <C-k> <Esc>
+"lnoremap <C-k> <Esc>
+"tnoremap <C-k> <Esc>
+
+" Move between windows
+nnoremap <C-left> <C-w><C-h>
+nnoremap <C-right> <C-w><C-l>
+nnoremap <C-up> <C-w><C-k>
+nnoremap <C-down> <C-w><C-j>
 
 " Ctrl+h to stop searching
 vnoremap <C-h> :nohlsearch<cr>
@@ -370,8 +377,8 @@ command! -bang -nargs=? -complete=dir Files
 nnoremap <leader>o :e <C-R>=expand("%:p:h") . "/" <CR>
 
 " Left and right can switch buffers
-nnoremap <C-left> :bp<CR>
-nnoremap <C-right> :bn<CR>
+" nnoremap <C-left> :bp<CR>
+" nnoremap <C-right> :bn<CR>
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Use <Tab> and <S-Tab> to navigate through popup menu
@@ -450,3 +457,6 @@ if has('nvim')
 endif
 
 autocmd vimenter * ++nested colorscheme gruvbox
+
+
+
