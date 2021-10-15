@@ -10,7 +10,8 @@ set nocompatible
 filetype off
 call plug#begin()
 " Theem
-Plug 'morhetz/gruvbox'
+" Plug 'morhetz/gruvbox'
+Plug 'ray-x/aurora'
 
 " Load plugins
 " VIM enhancements
@@ -32,7 +33,15 @@ Plug 'junegunn/fzf.vim'
 " Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'neovim/nvim-lspconfig'
 Plug 'nvim-lua/lsp_extensions.nvim'
-Plug 'nvim-lua/completion-nvim'
+" Plug 'nvim-lua/completion-nvim'
+Plug 'ray-x/guihua.lua', {'do': 'cd lua/fzy && make' }
+Plug 'ray-x/navigator.lua'
+Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+
+" man one
+Plug 'ms-jpq/coq_nvim', {'branch': 'coq'}
+" 9000+ Snippets
+Plug 'ms-jpq/coq.artifacts', {'branch': 'artifacts'}
 
 " Syntactic language support
 Plug 'cespare/vim-toml'
@@ -43,6 +52,10 @@ Plug 'rhysd/vim-clang-format'
 Plug 'dag/vim-fish'
 Plug 'godlygeek/tabular'
 Plug 'plasticboy/vim-markdown'
+
+" git
+Plug 'nvim-lua/plenary.nvim'
+Plug 'TimUntersberger/neogit'
 
 call plug#end()
 
@@ -64,57 +77,66 @@ set background=dark
 syntax on
 hi Normal ctermbg=NONE
 
+lua <<EOF
+require'navigator'.setup()
+EOF
+
 " LSP configuration
-lua << END
-local lspconfig = require('lspconfig')
-local on_attach = function(client, bufnr)
-  local function buf_set_keymap(...) vim.api.nvim_buf_set_keymap(bufnr, ...) end
-  local function buf_set_option(...) vim.api.nvim_buf_set_option(bufnr, ...) end
+" lua << END
+"  local lspconfig = require('lspconfig')
+"  local on_attach = function(client, bufnr)
+"  local function buf_set_keymap(...) vim.api.nvim_buf_set_keymap(bufnr, ...) end
+"  local function buf_set_option(...) vim.api.nvim_buf_set_option(bufnr, ...) end
+"
+"  --Enable completion triggered by <c-x><c-o>
+"  buf_set_option('omnifunc', 'v:lua.vim.lsp.omnifunc')
+"
+"  -- Mappings.
+"  local opts = { noremap=true, silent=true }
+"
+"  -- See `:help vim.lsp.*` for documentation on any of the below functions
+"  buf_set_keymap('n', 'gD', '<Cmd>lua vim.lsp.buf.declaration()<CR>', opts)
+"  buf_set_keymap('n', 'gd', '<Cmd>lua vim.lsp.buf.definition()<CR>', opts)
+"  buf_set_keymap('n', 'K', '<Cmd>lua vim.lsp.buf.hover()<CR>', opts)
+"  buf_set_keymap('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>', opts)
+"  buf_set_keymap('n', '<C-k>', '<cmd>lua vim.lsp.buf.signature_help()<CR>', opts)
+"  buf_set_keymap('n', '<space>D', '<cmd>lua vim.lsp.buf.type_definition()<CR>', opts)
+"  buf_set_keymap('n', '<space>rn', '<cmd>lua vim.lsp.buf.rename()<CR>', opts)
+"  buf_set_keymap('n', '<space>a', '<cmd>lua vim.lsp.buf.code_action()<CR>', opts)
+"  buf_set_keymap('n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', opts)
+"  buf_set_keymap('n', '<space>e', '<cmd>lua vim.lsp.diagnostic.show_line_diagnostics()<CR>', opts)
+"  buf_set_keymap('n', '[d', '<cmd>lua vim.lsp.diagnostic.goto_prev()<CR>', opts)
+"  buf_set_keymap('n', ']d', '<cmd>lua vim.lsp.diagnostic.goto_next()<CR>', opts)
+"  buf_set_keymap('n', '<space>q', '<cmd>lua vim.lsp.diagnostic.set_loclist()<CR>', opts)
+"  buf_set_keymap("n", "<space>f", "<cmd>lua vim.lsp.buf.formatting()<CR>", opts)
+"
+"  -- Forward to other plugins
+"  require'completion'.on_attach(client)
+" end
 
-  --Enable completion triggered by <c-x><c-o>
-  buf_set_option('omnifunc', 'v:lua.vim.lsp.omnifunc')
+" local servers = { "rust_analyzer" }
+" for _, lsp in ipairs(servers) do
+"   lspconfig[lsp].setup {
+ "    on_attach = on_attach,
+ "    flags = {
+  "     debounce_text_changes = 150,
+   "  }
+"   }
+" end
 
-  -- Mappings.
-  local opts = { noremap=true, silent=true }
+" lspconfig.jdtls.setup{
+"   on_attach = on_attach,
+"   cmd = { 'jdtls' }
+" }
 
-  -- See `:help vim.lsp.*` for documentation on any of the below functions
-  buf_set_keymap('n', 'gD', '<Cmd>lua vim.lsp.buf.declaration()<CR>', opts)
-  buf_set_keymap('n', 'gd', '<Cmd>lua vim.lsp.buf.definition()<CR>', opts)
-  buf_set_keymap('n', 'K', '<Cmd>lua vim.lsp.buf.hover()<CR>', opts)
-  buf_set_keymap('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>', opts)
-  buf_set_keymap('n', '<C-k>', '<cmd>lua vim.lsp.buf.signature_help()<CR>', opts)
-  buf_set_keymap('n', '<space>D', '<cmd>lua vim.lsp.buf.type_definition()<CR>', opts)
-  buf_set_keymap('n', '<space>rn', '<cmd>lua vim.lsp.buf.rename()<CR>', opts)
-  buf_set_keymap('n', '<space>a', '<cmd>lua vim.lsp.buf.code_action()<CR>', opts)
-  buf_set_keymap('n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', opts)
-  buf_set_keymap('n', '<space>e', '<cmd>lua vim.lsp.diagnostic.show_line_diagnostics()<CR>', opts)
-  buf_set_keymap('n', '[d', '<cmd>lua vim.lsp.diagnostic.goto_prev()<CR>', opts)
-  buf_set_keymap('n', ']d', '<cmd>lua vim.lsp.diagnostic.goto_next()<CR>', opts)
-  buf_set_keymap('n', '<space>q', '<cmd>lua vim.lsp.diagnostic.set_loclist()<CR>', opts)
-  buf_set_keymap("n", "<space>f", "<cmd>lua vim.lsp.buf.formatting()<CR>", opts)
-
-  -- Forward to other plugins
-  require'completion'.on_attach(client)
-end
-
-local servers = { "rust_analyzer" }
-for _, lsp in ipairs(servers) do
-  lspconfig[lsp].setup {
-    on_attach = on_attach,
-    flags = {
-      debounce_text_changes = 150,
-    }
-  }
-end
-
-vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
-  vim.lsp.diagnostic.on_publish_diagnostics, {
-    virtual_text = true,
-    signs = true,
-    update_in_insert = true,
-  }
-)
-END
+" vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
+"   vim.lsp.diagnostic.on_publish_diagnostics, {
+"     virtual_text = true,
+"     signs = true,
+"     update_in_insert = true,
+"  }
+" )
+" END
 
 " Plugin settings
 let g:secure_modelines_allowed_items = [
@@ -293,6 +315,11 @@ set showcmd " Show (partial) command in status line.
 set mouse=a " Enable mouse usage (all modes) in terminals
 set shortmess+=c " don't give |ins-completion-menu| messages.
 
+" tabs
+set tabstop=4
+set shiftwidth=4
+set expandtab
+
 " Show those damn hidden characters
 " Verbose: set listchars=nbsp:¬,eol:¶,extends:»,precedes:«,trail:•
 set listchars=nbsp:¬,extends:»,precedes:«,trail:•
@@ -300,6 +327,11 @@ set listchars=nbsp:¬,extends:»,precedes:«,trail:•
 " =============================================================================
 " # Keyboard shortcuts
 " =============================================================================
+noremap j h
+" noremap k k
+noremap l j
+noremap m l
+
 " ; as :
 nnoremap ; :
 
@@ -308,25 +340,33 @@ nnoremap ; :
 " https://github.com/neovim/neovim/issues/5916
 " So we also map Ctrl+k
 
-"nnoremap <C-j> <Esc>
-"inoremap <C-j> <Esc>
-"vnoremap <C-j> <Esc>
-"snoremap <C-j> <Esc>
-"xnoremap <C-j> <Esc>
-"cnoremap <C-j> <C-c>
-"onoremap <C-j> <Esc>
-"lnoremap <C-j> <Esc>
-"tnoremap <C-j> <Esc>
+nnoremap <C-j> <Esc>
+inoremap <C-j> <Esc>
+vnoremap <C-j> <Esc>
+snoremap <C-j> <Esc>
+xnoremap <C-j> <Esc>
+cnoremap <C-j> <C-c>
+onoremap <C-j> <Esc>
+lnoremap <C-j> <Esc>
+tnoremap <C-j> <Esc>
 
-"nnoremap <C-k> <Esc>
-"inoremap <C-k> <Esc>
-"vnoremap <C-k> <Esc>
-"snoremap <C-k> <Esc>
-"xnoremap <C-k> <Esc>
-"cnoremap <C-k> <C-c>
-"onoremap <C-k> <Esc>
-"lnoremap <C-k> <Esc>
-"tnoremap <C-k> <Esc>
+nnoremap <C-k> <Esc>
+inoremap <C-k> <Esc>
+vnoremap <C-k> <Esc>
+snoremap <C-k> <Esc>
+xnoremap <C-k> <Esc>
+cnoremap <C-k> <C-c>
+onoremap <C-k> <Esc>
+lnoremap <C-k> <Esc>
+tnoremap <C-k> <Esc>
+
+" No arrow keys --- force yourself to use the home row
+" nnoremap <up> <nop>
+" nnoremap <down> <nop>
+" inoremap <up> <nop>
+" inoremap <down> <nop>
+" inoremap <left> <nop>
+" inoremap <right> <nop>
 
 " Move between windows
 nnoremap <C-left> <C-w><C-h>
@@ -456,7 +496,7 @@ if has('nvim')
 	runtime! plugin/python_setup.vim
 endif
 
-autocmd vimenter * ++nested colorscheme gruvbox
-
+set termguicolors            " 24 bit color
+colorscheme aurora
 
 
