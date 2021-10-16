@@ -36,6 +36,7 @@ Plug 'nvim-lua/lsp_extensions.nvim'
 Plug 'ray-x/guihua.lua', {'do': 'cd lua/fzy && make' }
 Plug 'ray-x/navigator.lua'
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+Plug 'williamboman/nvim-lsp-installer'
 
 " completion
 Plug 'hrsh7th/nvim-cmp'
@@ -43,6 +44,7 @@ Plug 'hrsh7th/cmp-nvim-lsp'
 Plug 'hrsh7th/cmp-path'
 Plug 'hrsh7th/cmp-vsnip'
 Plug 'hrsh7th/cmp-buffer'
+
 Plug 'hrsh7th/vim-vsnip'
 
 " Syntactic language support
