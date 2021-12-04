@@ -2,6 +2,20 @@
 set shell=/bin/bash
 let mapleader = "\<Space>"
 
+
+" ==================
+" Key bindings
+" ==================
+
+" goto file under cursor : create the file if it does not exists
+noremap gf :tabe <cfile><CR>
+
+" exit terminal
+tnoremap <ESC> <C-\><C-n>:q<CR>
+" open terminal
+nnoremap <leader>t :FloatermToggle<CR>
+
+
 " =============================================================================
 " # PLUGINS
 " =============================================================================
@@ -9,9 +23,11 @@ let mapleader = "\<Space>"
 set nocompatible
 filetype off
 call plug#begin()
-" Theem
+
 " Plug 'morhetz/gruvbox'
 Plug 'ray-x/aurora'
+
+Plug 'voldikss/vim-floaterm'
 
 " Load plugins
 " VIM enhancements
@@ -28,38 +44,17 @@ Plug 'andymass/vim-matchup'
 Plug 'airblade/vim-rooter'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
+Plug 'gfanto/fzf-lsp.nvim'
 
 " Semantic language support
-" Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'neovim/nvim-lspconfig'
 Plug 'nvim-lua/lsp_extensions.nvim'
-Plug 'ray-x/guihua.lua', {'do': 'cd lua/fzy && make' }
-Plug 'ray-x/navigator.lua'
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 Plug 'williamboman/nvim-lsp-installer'
 
-" completion
-Plug 'hrsh7th/nvim-cmp'
-Plug 'hrsh7th/cmp-nvim-lsp'
-Plug 'hrsh7th/cmp-path'
-Plug 'hrsh7th/cmp-vsnip'
-Plug 'hrsh7th/cmp-buffer'
-
-Plug 'hrsh7th/vim-vsnip'
-
-" Syntactic language support
-Plug 'cespare/vim-toml'
-Plug 'stephpy/vim-yaml'
-Plug 'rust-lang/rust.vim'
-Plug 'rhysd/vim-clang-format'
-"Plug 'fatih/vim-go'
-Plug 'dag/vim-fish'
-Plug 'godlygeek/tabular'
-Plug 'plasticboy/vim-markdown'
-
-" git
-Plug 'nvim-lua/plenary.nvim'
-Plug 'TimUntersberger/neogit'
+source ~/.config/nvim/init/completion-plug.vim
+source ~/.config/nvim/init/lang-plug.vim
+source ~/.config/nvim/init/git-plug.vim
 
 call plug#end()
 
@@ -69,89 +64,17 @@ if has('nvim')
     noremap <C-q> :confirm qall<CR>
 end
 
-" deal with colors
-if !has('gui_running')
-  set t_Co=256
-endif
-if (match($TERM, "-256color") != -1) && (match($TERM, "screen-256color") == -1)
-  " screen does not (yet) support truecolor
-  set termguicolors
-endif
 set background=dark
 syntax on
 hi Normal ctermbg=NONE
 
-lua <<EOF
-require'navigator'.setup()
+lua << EOF
+require'lspconfig'.rust_analyzer.setup{}
+require'fzf_lsp'.setup()
 EOF
 
-" Setup Completion
-" See https://github.com/hrsh7th/nvim-cmp#basic-configuration
-lua <<EOF
-local cmp = require'cmp'
-cmp.setup({
-  -- Enable LSP snippets
-  snippet = {
-    expand = function(args)
-        vim.fn["vsnip#anonymous"](args.body)
-    end,
-  },
-  mapping = {
-    ['<C-p>'] = cmp.mapping.select_prev_item(),
-    ['<C-n>'] = cmp.mapping.select_next_item(),
-    -- Add tab support
-    ['<S-Tab>'] = cmp.mapping.select_prev_item(),
-    ['<Tab>'] = cmp.mapping.select_next_item(),
-    ['<C-d>'] = cmp.mapping.scroll_docs(-4),
-    ['<C-f>'] = cmp.mapping.scroll_docs(4),
-    ['<C-Space>'] = cmp.mapping.complete(),
-    ['<C-e>'] = cmp.mapping.close(),
-    ['<CR>'] = cmp.mapping.confirm({
-      behavior = cmp.ConfirmBehavior.Insert,
-      select = true,
-    })
-  },
-
-  -- Installed sources
-  sources = {
-    { name = 'nvim_lsp' },
-    { name = 'vsnip' },
-    { name = 'path' },
-    { name = 'buffer' },
-  },
-})
-EOF
-
-" Plugin settings
-let g:secure_modelines_allowed_items = [
-                \ "textwidth",   "tw",
-                \ "softtabstop", "sts",
-                \ "tabstop",     "ts",
-                \ "shiftwidth",  "sw",
-                \ "expandtab",   "et",   "noexpandtab", "noet",
-                \ "filetype",    "ft",
-                \ "foldmethod",  "fdm",
-                \ "readonly",    "ro",   "noreadonly", "noro",
-                \ "rightleft",   "rl",   "norightleft", "norl",
-                \ "colorcolumn"
-                \ ]
-
-" Lightline
-let g:lightline = {
-      \ 'active': {
-      \   'left': [ [ 'mode', 'paste' ],
-      \             [ 'readonly', 'filename', 'modified' ] ],
-      \   'right': [ [ 'lineinfo' ],
-      \              [ 'percent' ],
-      \              [ 'fileencoding', 'filetype' ] ],
-      \ },
-      \ 'component_function': {
-      \   'filename': 'LightlineFilename'
-      \ },
-      \ }
-function! LightlineFilename()
-  return expand('%:t') !=# '' ? @% : '[No Name]'
-endfunction
+source ~/.config/nvim/init/cmp.vim
+source ~/.config/nvim/init/line.vim
 
 " from http://sheerun.net/2014/03/21/how-to-boost-your-vim-productivity/
 if executable('ag')
@@ -200,11 +123,6 @@ set cmdheight=2
 " You will have bad experience for diagnostic messages when it's default 4000.
 set updatetime=300
 
-" Golang
-let g:go_play_open_browser = 0
-let g:go_fmt_fail_silently = 1
-let g:go_fmt_command = "goimports"
-let g:go_bin_path = expand("~/dev/go/bin")
 
 " =============================================================================
 " # Editor settings
@@ -311,13 +229,13 @@ set listchars=nbsp:¬,extends:»,precedes:«,trail:•
 " =============================================================================
 " # Keyboard shortcuts
 " =============================================================================
-noremap j h
+" noremap j h
 " noremap k k
-noremap l j
-noremap m l
+" noremap l j
+" noremap m l
 
 " ; as :
-nnoremap ; :
+" nnoremap ; :
 
 " Ctrl+j and Ctrl+k as Esc
 " Ctrl-j is a little awkward unfortunately:
@@ -379,7 +297,7 @@ noremap <leader>c :w !xsel -ib<cr><cr>
 
 " <leader>s for Rg search
 noremap <leader>s :Rg
-let g:fzf_layout = { 'down': '~20%' }
+let g:fzf_layout = { 'down': '~30%' }
 command! -bang -nargs=* Rg
   \ call fzf#vim#grep(
   \   'rg --column --line-number --no-heading --color=always '.shellescape(<q-args>), 1,
@@ -395,6 +313,8 @@ endfunction
 command! -bang -nargs=? -complete=dir Files
   \ call fzf#vim#files(<q-args>, {'source': s:list_cmd(),
   \                               'options': '--tiebreak=index'}, <bang>0)
+
+
 
 
 " Open new file adjacent to current file
