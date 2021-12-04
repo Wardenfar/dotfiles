@@ -11,12 +11,18 @@ let mapleader = "\<Space>"
 noremap gf :tabe <cfile><CR>
 
 " exit terminal
-tnoremap <ESC> <C-\><C-n>:q<CR>
+tnoremap <ESC> <C-\><C-n>:FloatermHide<CR>
 " open terminal
 nnoremap <leader>t :FloatermToggle<CR>
 
+" reload vim
+nnoremap <Leader>vr :source $MYVIMRC<cr>
+nnoremap <silent> <Leader>ve :e $MYVIMRC<cr>
 
-" =============================================================================
+noremap <leader>st :Rg!<space>
+noremap <leader>sf :Files<cr>
+noremap <leader>ss :WorkspaceSymbols!<cr>
+
 " # PLUGINS
 " =============================================================================
 " Load vundle
@@ -28,6 +34,11 @@ call plug#begin()
 Plug 'ray-x/aurora'
 
 Plug 'voldikss/vim-floaterm'
+Plug 'liuchengxu/vim-which-key'
+
+" file tree
+Plug 'kyazdani42/nvim-web-devicons'
+Plug 'kyazdani42/nvim-tree.lua'
 
 " Load plugins
 " VIM enhancements
@@ -68,13 +79,17 @@ set background=dark
 syntax on
 hi Normal ctermbg=NONE
 
+source ~/.config/nvim/init/lsp.vim
+
 lua << EOF
-require'lspconfig'.rust_analyzer.setup{}
 require'fzf_lsp'.setup()
+require'nvim-tree'.setup()
 EOF
 
 source ~/.config/nvim/init/cmp.vim
 source ~/.config/nvim/init/line.vim
+source ~/.config/nvim/init/fzf.vim
+source ~/.config/nvim/init/which-key.vim
 
 " from http://sheerun.net/2014/03/21/how-to-boost-your-vim-productivity/
 if executable('ag')
@@ -140,6 +155,12 @@ let g:sneak#s_next = 1
 let g:vim_markdown_new_list_item_indent = 0
 let g:vim_markdown_auto_insert_bullets = 0
 let g:vim_markdown_frontmatter = 1
+set printfont=:h10
+let g:sneak#s_next = 1
+let g:vim_markdown_new_list_item_indent = 0
+let g:vim_markdown_auto_insert_bullets = 0
+let g:vim_markdown_frontmatter = 1
+set printfont=:h10
 set printfont=:h10
 set printencoding=utf-8
 set printoptions=paper:letter
@@ -295,25 +316,6 @@ map L $
 noremap <leader>p :read !xsel --clipboard --output<cr>
 noremap <leader>c :w !xsel -ib<cr><cr>
 
-" <leader>s for Rg search
-noremap <leader>s :Rg
-let g:fzf_layout = { 'down': '~30%' }
-command! -bang -nargs=* Rg
-  \ call fzf#vim#grep(
-  \   'rg --column --line-number --no-heading --color=always '.shellescape(<q-args>), 1,
-  \   <bang>0 ? fzf#vim#with_preview('up:60%')
-  \           : fzf#vim#with_preview('right:50%:hidden', '?'),
-  \   <bang>0)
-
-function! s:list_cmd()
-  let base = fnamemodify(expand('%'), ':h:.:S')
-  return base == '.' ? 'fd --type file --follow' : printf('fd --type file --follow | proximity-sort %s', shellescape(expand('%')))
-endfunction
-
-command! -bang -nargs=? -complete=dir Files
-  \ call fzf#vim#files(<q-args>, {'source': s:list_cmd(),
-  \                               'options': '--tiebreak=index'}, <bang>0)
-
 
 
 
@@ -385,12 +387,6 @@ autocmd BufRead *.plot set filetype=gnuplot
 autocmd BufRead *.md set filetype=markdown
 autocmd BufRead *.lds set filetype=ld
 autocmd BufRead *.tex set filetype=tex
-autocmd BufRead *.trm set filetype=c
-autocmd BufRead *.xlsx.axlsx set filetype=ruby
-
-" Script plugins
-autocmd Filetype html,xml,xsl,php source ~/.config/nvim/scripts/closetag.vim
-
 " =============================================================================
 " # Footer
 " =============================================================================
