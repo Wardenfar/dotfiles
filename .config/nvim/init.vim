@@ -11,7 +11,7 @@ let mapleader = "\<Space>"
 noremap gf :tabe <cfile><CR>
 
 " exit terminal
-tnoremap <ESC> <C-\><C-n>:FloatermHide<CR>
+tnoremap <ESC> <C-\><C-n>:q<CR>
 " open terminal
 nnoremap <leader>t :FloatermToggle<CR>
 
@@ -21,6 +21,8 @@ nnoremap <silent> <Leader>ve :e $MYVIMRC<cr>
 
 noremap <leader>st :Rg!<space>
 noremap <leader>sf :Files<cr>
+noremap <leader>ff :Files<cr>
+noremap <leader>ft :NvimTreeToggle<cr>
 noremap <leader>ss :WorkspaceSymbols!<cr>
 
 " # PLUGINS
